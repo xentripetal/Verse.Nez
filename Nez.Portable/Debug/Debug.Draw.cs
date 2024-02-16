@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Concurrent;
+using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Nez.BitmapFonts;
 using System.Diagnostics;
@@ -9,8 +10,8 @@ namespace Nez
 	{
 		public static bool DrawTextFromBottom;
 
-		static List<DebugDrawItem> _debugDrawItems = new List<DebugDrawItem>();
-		static List<DebugDrawItem> _screenSpaceDebugDrawItems = new List<DebugDrawItem>();
+		static ConcurrentQueue<DebugDrawItem> _debugDrawItems = new ConcurrentQueue<DebugDrawItem>();
+		static ConcurrentQueue<DebugDrawItem> _screenSpaceDebugDrawItems = new ConcurrentQueue<DebugDrawItem>();
 
 		[Conditional("DEBUG")]
 		internal static void Render()
@@ -22,11 +23,14 @@ namespace Nez
 				else
 					Graphics.Instance.Batcher.Begin();
 
-				for (var i = _debugDrawItems.Count - 1; i >= 0; i--)
+				for (int i = 0; i < _debugDrawItems.Count; i++)
 				{
-					var item = _debugDrawItems[i];
-					if (item.Draw(Graphics.Instance.Batcher))
-						_debugDrawItems.RemoveAt(i);
+					if (!_debugDrawItems.TryDequeue(out var item)) continue;
+					if (!item.Draw(Graphics.Instance.Batcher))
+					{
+						// Put it back if it isn't done drawing
+						_debugDrawItems.Enqueue(item);
+					}
 				}
 
 				Graphics.Instance.Batcher.End();
@@ -39,7 +43,7 @@ namespace Nez
 
 				for (var i = _screenSpaceDebugDrawItems.Count - 1; i >= 0; i--)
 				{
-					var item = _screenSpaceDebugDrawItems[i];
+					if (!_screenSpaceDebugDrawItems.TryDequeue(out var item)) continue;
 					var itemHeight = item.GetHeight();
 
 					if (DrawTextFromBottom)
@@ -47,8 +51,8 @@ namespace Nez
 					else
 						item.Position = pos;
 
-					if (item.Draw(Graphics.Instance.Batcher))
-						_screenSpaceDebugDrawItems.RemoveAt(i);
+					if (!item.Draw(Graphics.Instance.Batcher))
+						_screenSpaceDebugDrawItems.Enqueue(item);
 
 					if (DrawTextFromBottom)
 						pos.Y -= itemHeight;
@@ -66,7 +70,7 @@ namespace Nez
 			if (!Core.DebugRenderEnabled)
 				return;
 
-			_debugDrawItems.Add(new DebugDrawItem(start, end, color, duration));
+			_debugDrawItems.Enqueue(new DebugDrawItem(start, end, color, duration));
 		}
 
 		[Conditional("DEBUG")]
@@ -75,7 +79,7 @@ namespace Nez
 			if (!Core.DebugRenderEnabled)
 				return;
 
-			_debugDrawItems.Add(new DebugDrawItem(x, y, size, color, duration));
+			_debugDrawItems.Enqueue(new DebugDrawItem(x, y, size, color, duration));
 		}
 
 		[Conditional("DEBUG")]
@@ -84,7 +88,7 @@ namespace Nez
 			if (!Core.DebugRenderEnabled)
 				return;
 
-			_debugDrawItems.Add(new DebugDrawItem(position.X, position.Y, size, color, duration));
+			_debugDrawItems.Enqueue(new DebugDrawItem(position.X, position.Y, size, color, duration));
 		}
 
 		[Conditional("DEBUG")]
@@ -93,7 +97,7 @@ namespace Nez
 			if (!Core.DebugRenderEnabled)
 				return;
 
-			_debugDrawItems.Add(new DebugDrawItem(rectangle, color, duration));
+			_debugDrawItems.Enqueue(new DebugDrawItem(rectangle, color, duration));
 		}
 
 		[Conditional("DEBUG")]
@@ -103,7 +107,7 @@ namespace Nez
 				return;
 
 			var halfSize = size * 0.5f;
-			_debugDrawItems.Add(new DebugDrawItem(
+			_debugDrawItems.Enqueue(new DebugDrawItem(
 				new Rectangle((int)(center.X - halfSize), (int)(center.Y - halfSize), size, size), color, duration));
 		}
 
@@ -114,7 +118,7 @@ namespace Nez
 			if (!Core.DebugRenderEnabled)
 				return;
 
-			_debugDrawItems.Add(new DebugDrawItem(font, text, position, color, duration, scale));
+			_debugDrawItems.Enqueue(new DebugDrawItem(font, text, position, color, duration, scale));
 		}
 
 		[Conditional("DEBUG")]
@@ -124,7 +128,7 @@ namespace Nez
 			if (!Core.DebugRenderEnabled)
 				return;
 
-			_debugDrawItems.Add(new DebugDrawItem(font, text, position, color, duration, scale));
+			_debugDrawItems.Enqueue(new DebugDrawItem(font, text, position, color, duration, scale));
 		}
 
 		[Conditional("DEBUG")]
@@ -146,7 +150,7 @@ namespace Nez
 			if (!Core.DebugRenderEnabled)
 				return;
 
-			_screenSpaceDebugDrawItems.Add(new DebugDrawItem(text, color, duration, scale));
+			_screenSpaceDebugDrawItems.Enqueue(new DebugDrawItem(text, color, duration, scale));
 		}
 	}
 }
