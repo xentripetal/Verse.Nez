@@ -673,7 +673,7 @@ namespace Nez.Tiled
 			else
 			{
 				foreach (var tile in tileset.Tiles.Values)
-					tileset.TileRegions.Add(firstGid + tile.Id, new RectangleF(0, 0, tile.Image.Width, tile.Image.Height));
+					tileset.TileRegions.Add(firstGid + tile.Id, new RectangleF(tile.X.GetValueOrDefault(0), tile.Y.GetValueOrDefault(0), tile.Width.GetValueOrDefault(tile.Image.Width), tile.Height.GetValueOrDefault(tile.Image.Height)));
 			}
 
 			return tileset;
@@ -701,6 +701,11 @@ namespace Nez.Tiled
 					tile.TerrainEdges[index++] = edge;
 				}
 			}
+			
+			tile.Height = (int?)xTile.Attribute("height");
+			tile.Width= (int?)xTile.Attribute("height");
+			tile.X = (int?)xTile.Attribute("x");
+			tile.X = (int?)xTile.Attribute("y");
 
 			tile.Probability = (double?)xTile.Attribute("probability") ?? 1.0;
 			tile.Type = (string)xTile.Attribute("type");

@@ -116,10 +116,12 @@ namespace Nez.Tiled
 				{
 					var tile = layer.GetTile(x, y);
 					if (tile != null)
+					{
 						RenderTile(tile, batcher, position,
 							scale, tileWidth, tileHeight,
 							color, layerDepth, layer.Map.Orientation,
 							layer.Map.Width, layer.Map.Height);
+					}
 				}
 			}
 		}

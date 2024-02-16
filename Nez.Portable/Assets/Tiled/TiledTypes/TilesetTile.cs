@@ -10,6 +10,18 @@ namespace Nez.Tiled
 		public TmxTerrain[] TerrainEdges;
 		public double Probability;
 		public string Type;
+		
+		/// <summary>
+		/// If the tile is a custom image, it can specify a custom width 
+		/// </summary>
+		public int? Width;
+		/// <summary>
+		/// If the tile is a custom image, it can specify a custom width 
+		/// </summary>
+		public int? Height;
+
+		public int? X;
+		public int? Y;
 
 		public Dictionary<string, string> Properties;
 		public TmxImage Image;

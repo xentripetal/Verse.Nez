@@ -32,9 +32,14 @@ namespace Nez.Textures
 		public readonly Vector2 Center;
 
 		/// <summary>
-		/// the origin that a RenderableComponent should use when using this Sprite. Defaults to the center.
+		/// the origin that a RenderableComponent should use when using this Sprite. Defaults to the bottom left.
 		/// </summary>
 		public Vector2 Origin;
+
+		/// <summary>
+		/// the pivot point that should be used when sorting this sprite. Defaults to bottom left.
+		/// </summary>
+		public Vector2 SortPivot;
 
 
 		public Sprite(Texture2D texture, Rectangle sourceRect, Vector2 origin)
@@ -43,6 +48,7 @@ namespace Nez.Textures
 			SourceRect = sourceRect;
 			Center = new Vector2(sourceRect.Width * 0.5f, sourceRect.Height * 0.5f);
 			Origin = origin;
+			SortPivot = new Vector2(0, sourceRect.Height);
 
 			var inverseTexW = 1.0f / Texture2D.Width;
 			var inverseTexH = 1.0f / Texture2D.Height;
@@ -53,7 +59,7 @@ namespace Nez.Textures
 			Uvs.Height = sourceRect.Height * inverseTexH;
 		}
 
-		public Sprite(Texture2D texture, Rectangle sourceRect) : this(texture, sourceRect, sourceRect.GetHalfSize())
+		public Sprite(Texture2D texture, Rectangle sourceRect) : this(texture, sourceRect, new Vector2(0, sourceRect.Height))
 		{}
 
 		public Sprite(Texture2D texture) : this(texture, new Rectangle(0, 0, texture.Width, texture.Height))

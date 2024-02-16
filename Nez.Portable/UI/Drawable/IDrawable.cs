@@ -16,7 +16,6 @@ namespace Nez.UI
 		float MinWidth { get; set; }
 		float MinHeight { get; set; }
 
-
 		void SetPadding(float top, float bottom, float left, float right);
 
 		void Draw(Batcher batcher, float x, float y, float width, float height, Color color);

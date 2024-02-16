@@ -405,6 +405,11 @@ namespace Nez
 			RenderableComponents.UpdateLists();
 		}
 
+		protected virtual void CustomRender(int renderLayer)
+		{
+		}
+		
+
 		internal void Render()
 		{
 			if (_renderers.Length == 0)
@@ -439,6 +444,7 @@ namespace Nez
 				}
 
 				_renderers.Buffer[i].Render(this);
+				CustomRender(i);
 				lastRendererHadRenderTarget = _renderers.Buffer[i].RenderTexture != null;
 			}
 		}
